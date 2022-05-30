@@ -1,31 +1,38 @@
 --
 title: "Twitter Acquisition by Elon Musk: Tweet Scraping and Sentiment Analysis"
 author: "Abigail Chen"
-output: 
+output: 3
   html_document:
     toc: true
     toc_depth: 2
     toc_float: true
 ---   
 
-The aim of this project is to produce meaningful sentiment analysis about Elon Musk's potential Twitter acquisition.  This project will be using Rstudio.  The dataset was scaraped using the Twitter API, and can be found in this folder in my Github **TidyTuesday's Github**(https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-05-14).  I hope you enjoy this. :) 
+The aim of this project is to produce meaningful sentiment analysis about Elon Musk's potential Twitter acquisition.  This project will be using Rstudio.  The dataset was scaraped using the Twitter API, and can be found in this folder in **my Github Github**(https://github.com/abigailchristinechen/DE3.git).  I hope you enjoy this. :) 
 
 
 ##The Big News
 
+![Elon and Twitter](/Users/abigailchristinechen/DE3/ElonPhoto.jpeg)
+
+Photo credits to : https://leet.hu/2022/05/05/elon-musk-egyes-felhasznaloknak-fizetosse-valhat-a-twitter/
+
 Last April 25, 2022, one of the biggest news in tech M&A came in as a huge Twitter acquisition by Elon Musk.  There have been many speculations and hear say about Elon potentially acquiring Twitter. When will the acquisition happen? What will be the price of the acquisition?  What will happen to the Twitter management?  What will happen to Twitter?  How will this affect the twitter community?  The details were still unknown, until the big announcement on a definitive agreement about Elon Musk acquiring the Twitter entity wholly.  According to **CNBC's article**(https://www.cnbc.com/2022/04/25/twitter-accepts-elon-musks-buyout-deal.html),"the price is set at USD54.20 per share in cash in a transaction valued at approximately USD 44 billion." This means that the Twitter stockholders will receive a USD54.20 cash per share of Twitter common stock thatthey have upon the sale.  This price is based on the 38% premium to Twitter's closing stock price last April 1, 2022.  This transaction will convert Twitter from a publicly held company into a privately owned company.
 
-![Elon and Twitter](/Users/abigailchristinechen/data_visualization_2/Images/NobelPrizeMedal.png)
+![Elon Tweets](/Users/abigailchristinechen/DE3/ElonTweets.jpeg)
+Photo Credits to: https://itcafe.hu/hir/elon_musk_twitter_forradalom.html
 
 ##Why Twitter?
 
 What's the impact of this acquisition? As Twitter's CEO, Parag Agrawal once said, "Twitter has a purpose and relevance that impacts the entire world." This is particularly true especially with Twitter's reach, amount of users, and amount of information flowing in its platform. Elon's perspective on Twitter puts it into picture, "free speech is the bedrock of a functioning democracy, and Twitter is the digital town square where matters vital to the future of humanity are debated,".  Many local and international communities were born in Twitter.  Crypto flourished and thrived.  Investors and founders connected.  Warstruck places got aid.  Minorities were given attention.  This is just what Twitter is now, but the potential still remains vast.  Elon shares his long term plan saying, "I also want to make Twitter better than ever by enhancing the product with new features, making the algorithms open source to increase trust, defeating the spam bots, and authenticating all humans. Twitter has tremendous potential – I look forward to working with the company and the community of users to unlock it.".  
  
-![Twitter Logo](/Users/abigailchristinechen/data_visualization_2/Images/NobelPrizeMedal.png)
+![Twitter Logo](/Users/abigailchristinechen/DE3/twitteraesthetic.jpg)
+
 
 ##What does the Twitter Community think about this potential acquisition?
 
 As of date, the acquisition is still in negotiation.  Whether it will push through or not is still in the table. But let's try to get a glimpse of what's happening out there in the Twitterverse.  We will be working with the following trending hashtags related to the acquisition : #TwitterTakeover, #TwitterSold, #TwitterCEO, #ElonMuskBuysTwitter, #ElonMusk.  TwitterTakeover aand TwitterSold are the main hashtag that trended since the announcement. Aside from these, people started talking about what could potentially happen with the Twitter management using #TwitterCEO.  Tweets about the billionaire #ElonMusk and him buying Twitter (#ElonMuskBuysTwitter) can also give us an idea of how people feel about it.
+
 
 
 ##Libraries used
@@ -49,20 +56,14 @@ library("tidytext")
 library('plotly')
 library('textdata')
 set.seed(222)
-
-consumerKey = "W7d5usbfcYt3wZPS348sXwJ3i"  
-consumerSecret = "GmJ2krkd0Iih1WYXm2Ml2fapcVlwNqgUEBtVQit25ddKrPjDqo"
-accessToken = "850647463-lnYE2WUANf2pW0BGTLHbAdkD3g104x03v33cW1zv"
-accessSecret = "ssPRkGCIXhVYylKGZWxiJq1ffRk1WYuiinImMsmBW03rO"
 ```
 
 
 ## Twitter API Configuration
 
 ```{r }
-setup_twitter_oauth(consumerKey, consumerSecret,
-                    accessToken,accessSecret)
-
+#setup_twitter_oauth(consumerKey, consumerSecret,
+#                    accessToken,accessSecret)
 ```
 
 
