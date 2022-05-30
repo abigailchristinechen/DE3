@@ -1,0 +1,975 @@
+--
+title: "Twitter Acquisition by Elon Musk: Tweet Scraping and Sentiment Analysis"
+author: "Abigail Chen"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+---   
+
+The aim of this project is to produce meaningful sentiment analysis about Elon Musk's potential Twitter acquisition.  This project will be using Rstudio.  The dataset was scaraped using the Twitter API, and can be found in this folder in my Github **TidyTuesday's Github**(https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-05-14).  I hope you enjoy this. :) 
+
+
+##The Big News
+
+Last April 25, 2022, one of the biggest news in tech M&A came in as a huge Twitter acquisition by Elon Musk.  There have been many speculations and hear say about Elon potentially acquiring Twitter. When will the acquisition happen? What will be the price of the acquisition?  What will happen to the Twitter management?  What will happen to Twitter?  How will this affect the twitter community?  The details were still unknown, until the big announcement on a definitive agreement about Elon Musk acquiring the Twitter entity wholly.  According to **CNBC's article**(https://www.cnbc.com/2022/04/25/twitter-accepts-elon-musks-buyout-deal.html),"the price is set at USD54.20 per share in cash in a transaction valued at approximately USD 44 billion." This means that the Twitter stockholders will receive a USD54.20 cash per share of Twitter common stock thatthey have upon the sale.  This price is based on the 38% premium to Twitter's closing stock price last April 1, 2022.  This transaction will convert Twitter from a publicly held company into a privately owned company.
+
+![Elon and Twitter](/Users/abigailchristinechen/data_visualization_2/Images/NobelPrizeMedal.png)
+
+##Why Twitter?
+
+What's the impact of this acquisition? As Twitter's CEO, Parag Agrawal once said, "Twitter has a purpose and relevance that impacts the entire world." This is particularly true especially with Twitter's reach, amount of users, and amount of information flowing in its platform. Elon's perspective on Twitter puts it into picture, "free speech is the bedrock of a functioning democracy, and Twitter is the digital town square where matters vital to the future of humanity are debated,".  Many local and international communities were born in Twitter.  Crypto flourished and thrived.  Investors and founders connected.  Warstruck places got aid.  Minorities were given attention.  This is just what Twitter is now, but the potential still remains vast.  Elon shares his long term plan saying, "I also want to make Twitter better than ever by enhancing the product with new features, making the algorithms open source to increase trust, defeating the spam bots, and authenticating all humans. Twitter has tremendous potential – I look forward to working with the company and the community of users to unlock it.".  
+ 
+![Twitter Logo](/Users/abigailchristinechen/data_visualization_2/Images/NobelPrizeMedal.png)
+
+##What does the Twitter Community think about this potential acquisition?
+
+As of date, the acquisition is still in negotiation.  Whether it will push through or not is still in the table. But let's try to get a glimpse of what's happening out there in the Twitterverse.  We will be working with the following trending hashtags related to the acquisition : #TwitterTakeover, #TwitterSold, #TwitterCEO, #ElonMuskBuysTwitter, #ElonMusk.  TwitterTakeover aand TwitterSold are the main hashtag that trended since the announcement. Aside from these, people started talking about what could potentially happen with the Twitter management using #TwitterCEO.  Tweets about the billionaire #ElonMusk and him buying Twitter (#ElonMuskBuysTwitter) can also give us an idea of how people feel about it.
+
+
+##Libraries used
+
+First, let's prepare the libraries and packages we will be using.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(wordcloud)
+library("base64enc")
+library("openssl")
+library("httpuv")
+library("twitteR")
+library("tm")
+library("stringr")
+library("dplyr")
+library("httr")
+library("tidyverse")
+library("tidytext")
+library('plotly')
+library('textdata')
+set.seed(222)
+
+consumerKey = "W7d5usbfcYt3wZPS348sXwJ3i"  
+consumerSecret = "GmJ2krkd0Iih1WYXm2Ml2fapcVlwNqgUEBtVQit25ddKrPjDqo"
+accessToken = "850647463-lnYE2WUANf2pW0BGTLHbAdkD3g104x03v33cW1zv"
+accessSecret = "ssPRkGCIXhVYylKGZWxiJq1ffRk1WYuiinImMsmBW03rO"
+```
+
+
+## Twitter API Configuration
+
+```{r }
+setup_twitter_oauth(consumerKey, consumerSecret,
+                    accessToken,accessSecret)
+
+```
+
+
+## These are the hashtags to be explored:
+1.    #TwitterTakeover
+2.    #TwitterSold
+3.    #TwitterCEO
+4.    #ElonMuskBuysTwitter
+5.    #ElonMusk
+
+
+## Scrapping each for each Twitter hashtag 
+
+Each hashtag was scrapped for 50,000 tweets. The scrapped data was saved as .csv file to avoid time wasteage and to preserve the API calls.
+Note that some hashtags didnt return 50,000 tweets.
+
+```{r }
+# for #TwitterTakeover
+# TwitterTakeover = searchTwitter('#TwitterTakeover', n = 50000, since = '2021-01-01')
+# TwitterTakeover <- twListToDF(TwitterTakeover)
+# write.csv(TwitterTakeover,"TwitterTakeover.csv", row.names = FALSE)
+# 
+#
+# for #TwitterSold
+# TwitterSold = searchTwitter('#TwitterSold', n = 50000, since = '2021-01-01')
+# TwitterSold <- twListToDF(TwitterSold)
+# write.csv(TwitterSold,"TwitterSold.csv", row.names = FALSE)
+# 
+#
+# for #TwitterCEO
+# TwitterCEO = searchTwitter('#TwitterCEO', n = 50000, since = '2021-01-01')
+# TwitterCEO <- twListToDF(TwitterCEO)
+# write.csv(TwitterCEO,"TwitterCEO.csv", row.names = FALSE)
+#
+#
+# for #ElonMuskBuysTwitter
+# ElonMuskBuysTwitter = searchTwitter('#ElonMuskBuysTwitter', n = 50000, since = '2021-01-01')
+# ElonMuskBuysTwitter <- twListToDF(ElonMuskBuysTwitter)
+# write.csv(ElonMuskBuysTwitter,"ElonMuskBuysTwitter", row.names = FALSE)
+#
+#
+# for #ElonMusk
+# ElonMusk = searchTwitter('#ElonMusk', n = 50000, since = '2021-01-01')
+# ElonMusk <- twListToDF(ElonMusk)
+# write.csv(ElonMusk,"ElonMusk.csv", row.names = FALSE)
+
+```
+
+
+## Configuring the different sentiment dictionaries
+For this analysis we will be using Bing, Loughran Affin and nRC dictionaries.  
+
+## Why these dictionaries?
+
+```{r }
+#Bing dictionary
+bing_lex <- get_sentiments("bing")
+
+#Loughran dictionary
+loughran_lex <- get_sentiments("loughran")
+
+#Afinn dictionary
+afinn_lex <- get_sentiments("afinn")
+
+
+## nrc isnt working
+# nrc_lex <- get_sentiments("nrc")
+
+```
+
+
+## Analysing #TwitterTakeover
+Let's begin the analysis, and load the csv for the first hashtag we will explore. #TwitterTakeover has 32,688 tweets.
+
+```{r }
+TwitterTakeover = read.csv(paste0("TwitterTakeover",".csv"))
+```
+
+#### Preparing the data
+We need to do some data engineering magic. After loading our csv file containing the data, we need to extract the words from the tweets and we'll put it in a variable "TweetWords".
+
+```{r }
+
+## extracting words
+TweetWords <- TwitterTakeover %>% 
+  select(id, text) %>%
+  unnest_tokens(word,text)
+
+```
+
+We will then have to get the "stop words" using this.
+```{r }
+
+## getting the actual words
+StopWords <- stop_words %>% 
+  select(-lexicon)
+
+```
+
+Then compare the stop words to the tweet words. 
+```{r }
+## selecting actual words fromm the tweets data
+TweetWords <- TweetWords %>%
+  anti_join(StopWords)
+```
+
+We can finally start getting the sentiments from the various dictionaries we used. 
+```{r }
+## getting sentiments data from each dictionary
+SentimentBing <- TweetWords %>%
+  left_join(bing_lex)
+
+SentimentLoughran <- TweetWords %>% 
+  left_join(loughran_lex)
+
+SentimentAfinn <- TweetWords %>% 
+  left_join(afinn_lex)
+
+```
+
+Now, it's time for some visualization and results! 
+```{r }
+
+## word cloud data for words used in each dictionary
+Cloud = na.omit(SentimentBing)
+Cloud1 = na.omit(SentimentAfinn)
+Cloud2 = na.omit(SentimentLoughran)
+
+## Afinn Dictionary word count
+SentimentAfinn = SentimentAfinn %>% 
+  filter(!is.na(value)) %>% 
+  group_by(value) %>% 
+  summarise(n=n())
+
+SentimentAfinn = as.data.frame(SentimentAfinn)
+
+## Bing Dictionary word count
+SentimentBing = SentimentBing %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarise(n=n())
+
+SentimentBing = as.data.frame(SentimentBing)
+
+SentimentBing$sentiment = as.factor(SentimentBing$sentiment)
+
+## Loughran Dictionary word count
+SentimentLoughran = SentimentLoughran %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarise(n=n())
+
+SentimentLoughran = as.data.frame(SentimentLoughran)
+
+SentimentLoughran$sentiment = as.factor(SentimentLoughran$sentiment)
+
+
+
+# Cloud = Cloud1
+
+Cloud = as.data.frame(table(Cloud$word))
+
+Cloud <- Cloud[order((Cloud$Freq), decreasing = TRUE),]
+
+
+# Cloud1 = as.data.frame(table(Cloud1$word))
+# 
+# Cloud1 <- Cloud1[order((Cloud1$Freq), decreasing = TRUE),]
+# 
+# 
+# Cloud2 = as.data.frame(table(Cloud2$word))
+# 
+# Cloud2 <- Cloud[order((Cloud2$Freq), decreasing = TRUE),]
+
+
+```
+
+
+#### Sentiment Results using Bing Dictionary
+
+```{r }
+plot_ly(SentimentBing, x = ~sentiment,y =~n, type = "bar", color =~ sentiment )%>%
+  layout(title = "Lexicon: Bing, Hashtag: #TwitterTakeover", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments"))
+
+```
+
+
+#### Sentiment Results using Afinn Dictionary
+
+Scale on the x axis goes from -5 to 5 where -5 means extreme negative and 5 means extreme positive 
+
+```{r, warning=FALSE }
+
+plot_ly(SentimentAfinn, x = ~value,y =~n, type = "bar", color =~ value )%>%
+  layout(title = "Lexicon: Affin, Hashtag: #TwitterTakeover", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments"))
+
+```
+
+#### Sentiment Results using Loughran Dictionary
+
+```{r }
+plot_ly(SentimentLoughran, x = ~sentiment,y =~n, type = "bar", color =~ sentiment )%>%
+  layout(title = "Lexicon: Loughran, Hashtag: #TwitterTakeover", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments", 
+                      categoryorder = "total descending"))
+
+```
+
+#### Word Cloud
+
+```{r }
+
+wordcloud(words = (Cloud$Var1),
+          freq = Cloud$Freq,
+          max.words = 150,
+          random.order = F,
+          min.freq = 5,
+          colors = brewer.pal(8, 'Dark2'),
+          scale = c(5, 0.3),
+          rot.per = 0.7)
+
+```
+
+#### Top 10 words used in #TwitterTakeover
+
+```{r }
+
+Bar = Cloud[1:10,]
+Bar$Var1 = as.character(Bar$Var1)
+Bar$Var1 = as.factor(Bar$Var1)
+
+plot_ly(Bar, y = ~Var1,x =~Freq, type = "bar", color =~ Var1 ,
+        
+        text  =~Freq, textposition = 'outside',
+        textfont = list(color = '#000000', size = 16)
+        )%>%
+  layout(title = "Top 10 words used in #TwitterTakeover", 
+         list(title = "Word Count",range = c(0,(max(Bar$Freq)*1.2 ))), 
+         yaxis = list(title = "", 
+                      categoryorder = "total ascending"))
+
+```
+
+
+
+## Analysing #ElonMusk
+
+```{r }
+ElonMusk = read.csv(paste0("ElonMusk",".csv"))
+```
+
+#### Preparing the data
+
+```{r }
+
+## extracting words
+TweetWords <- ElonMusk %>% 
+  select(id, text) %>%
+  unnest_tokens(word,text)
+
+## geeting the actual words
+StopWords <- stop_words %>% 
+  select(-lexicon)
+
+## selecting actual words fromm the tweets data
+TweetWords <- TweetWords %>%
+  anti_join(StopWords)
+
+## getting sentiments data from each dictionary
+SentimentBing <- TweetWords %>%
+  left_join(bing_lex)
+
+SentimentLoughran <- TweetWords %>% 
+  left_join(loughran_lex)
+
+SentimentAfinn <- TweetWords %>% 
+  left_join(afinn_lex)
+
+## word cloud data for words used in each dictionary
+Cloud = na.omit(SentimentBing)
+Cloud1 = na.omit(SentimentAfinn)
+Cloud2 = na.omit(SentimentLoughran)
+
+## Afinn Dictionary word count
+SentimentAfinn = SentimentAfinn %>% 
+  filter(!is.na(value)) %>% 
+  group_by(value) %>% 
+  summarise(n=n())
+
+SentimentAfinn = as.data.frame(SentimentAfinn)
+
+## Bing Dictionary word count
+SentimentBing = SentimentBing %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarise(n=n())
+
+SentimentBing = as.data.frame(SentimentBing)
+
+SentimentBing$sentiment = as.factor(SentimentBing$sentiment)
+
+## Loughran Dictionary word count
+SentimentLoughran = SentimentLoughran %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarise(n=n())
+
+SentimentLoughran = as.data.frame(SentimentLoughran)
+
+SentimentLoughran$sentiment = as.factor(SentimentLoughran$sentiment)
+
+
+
+# Cloud = Cloud1
+
+Cloud = as.data.frame(table(Cloud$word))
+
+Cloud <- Cloud[order((Cloud$Freq), decreasing = TRUE),]
+
+
+# Cloud1 = as.data.frame(table(Cloud1$word))
+# 
+# Cloud1 <- Cloud1[order((Cloud1$Freq), decreasing = TRUE),]
+# 
+# 
+# Cloud2 = as.data.frame(table(Cloud2$word))
+# 
+# Cloud2 <- Cloud[order((Cloud2$Freq), decreasing = TRUE),]
+
+
+
+```
+
+
+#### Sentiment Results using Bing Dictionary
+
+```{r }
+plot_ly(SentimentBing, x = ~sentiment,y =~n, type = "bar", color =~ sentiment )%>%
+  layout(title = "Lexicon: Bing, Hashtag: #ElonMusk", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments"))
+
+```
+
+
+#### Sentiment Results using Afinn Dictionary
+
+Scale on the x axis goes from -5 to 5, where -5 means extreme negative and 5 means extreme positiv.e 
+
+```{r, warning=FALSE }
+
+plot_ly(SentimentAfinn, x = ~value,y =~n, type = "bar", color =~ value )%>%
+  layout(title = "Lexicon: Affin, Hashtag: #ElonMusk", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments"))
+
+```
+
+#### Sentiment Results using Loughran Dictionary
+
+```{r }
+plot_ly(SentimentLoughran, x = ~sentiment,y =~n, type = "bar", color =~ sentiment )%>%
+  layout(title = "Lexicon: Loughran, Hashtag: #ElonMusk", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments", 
+                      categoryorder = "total descending"))
+
+```
+
+#### Word Cloud
+
+```{r }
+
+wordcloud(words = (Cloud$Var1),
+          freq = Cloud$Freq,
+          max.words = 150,
+          random.order = F,
+          min.freq = 5,
+          colors = brewer.pal(8, 'Dark2'),
+          scale = c(5, 0.3),
+          rot.per = 0.7)
+
+```
+
+
+#### Top 10 words used in #ElonMusk
+
+```{r }
+
+Bar = Cloud[1:10,]
+Bar$Var1 = as.character(Bar$Var1)
+Bar$Var1 = as.factor(Bar$Var1)
+
+plot_ly(Bar, y = ~Var1,x =~Freq, type = "bar", color =~ Var1 ,
+        
+        text  =~Freq, textposition = 'outside',
+        textfont = list(color = '#000000', size = 16)
+        )%>%
+  layout(title = "Top 10 words used in #TwitterTakeover", 
+         xaxis = list(title = "Word Count",range = c(0,(max(Bar$Freq)*1.2 ))),
+         yaxis = list(title = "", 
+                      categoryorder = "total ascending"))
+
+```
+
+We will then be repeating the same process for the other hashtags. 
+
+## Analysing #TwitterSold
+For #TwitterSold, there was 15,361 tweets.
+
+```{r }
+TwitterSold = read.csv(paste0("TwitterSold",".csv"))
+```
+
+#### Preparing the data
+
+```{r }
+
+## extracting words
+TweetWords <- TwitterSold %>% 
+  select(id, text) %>%
+  unnest_tokens(word,text)
+
+## geeting the actual words
+StopWords <- stop_words %>% 
+  select(-lexicon)
+
+## selecting actual words fromm the tweets data
+TweetWords <- TweetWords %>%
+  anti_join(StopWords)
+
+## getting sentiments data from each dictionary
+SentimentBing <- TweetWords %>%
+  left_join(bing_lex)
+
+SentimentLoughran <- TweetWords %>% 
+  left_join(loughran_lex)
+
+SentimentAfinn <- TweetWords %>% 
+  left_join(afinn_lex)
+
+## word cloud data for words used in each dictionary
+Cloud = na.omit(SentimentBing)
+Cloud1 = na.omit(SentimentAfinn)
+Cloud2 = na.omit(SentimentLoughran)
+
+## Afinn Dictionary word count
+SentimentAfinn = SentimentAfinn %>% 
+  filter(!is.na(value)) %>% 
+  group_by(value) %>% 
+  summarise(n=n())
+
+SentimentAfinn = as.data.frame(SentimentAfinn)
+
+## Bing Dictionary word count
+SentimentBing = SentimentBing %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarise(n=n())
+
+SentimentBing = as.data.frame(SentimentBing)
+
+SentimentBing$sentiment = as.factor(SentimentBing$sentiment)
+
+## Loughran Dictionary word count
+SentimentLoughran = SentimentLoughran %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarise(n=n())
+
+SentimentLoughran = as.data.frame(SentimentLoughran)
+
+SentimentLoughran$sentiment = as.factor(SentimentLoughran$sentiment)
+
+
+
+# Cloud = Cloud1
+
+Cloud = as.data.frame(table(Cloud$word))
+
+Cloud <- Cloud[order((Cloud$Freq), decreasing = TRUE),]
+
+
+# Cloud1 = as.data.frame(table(Cloud1$word))
+# 
+# Cloud1 <- Cloud1[order((Cloud1$Freq), decreasing = TRUE),]
+# 
+# 
+# Cloud2 = as.data.frame(table(Cloud2$word))
+# 
+# Cloud2 <- Cloud[order((Cloud2$Freq), decreasing = TRUE),]
+
+
+
+```
+
+
+#### Sentiment Results using Bing Dictionary
+
+```{r }
+plot_ly(SentimentBing, x = ~sentiment,y =~n, type = "bar", color =~ sentiment )%>%
+  layout(title = "Lexicon: Bing, Hashtag: #TwitterSold", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments"))
+
+```
+
+
+#### Sentiment Results using Afinn Dictionary
+
+Scale on the x axis goes from -5 to 5 where -5 means extreme negative and 5 means extreme positive 
+
+```{r, warning=FALSE }
+
+plot_ly(SentimentAfinn, x = ~value,y =~n, type = "bar", color =~ value )%>%
+  layout(title = "Lexicon: Affin, Hashtag: #TwitterSold", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments"))
+
+```
+
+#### Sentiment Results using Loughran Dictionary
+
+```{r }
+plot_ly(SentimentLoughran, x = ~sentiment,y =~n, type = "bar", color =~ sentiment )%>%
+  layout(title = "Lexicon: Loughran, Hashtag: #TwitterSold", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments", 
+                      categoryorder = "total descending"))
+
+```
+
+#### Word Cloud
+
+```{r }
+
+wordcloud(words = (Cloud$Var1),
+          freq = Cloud$Freq,
+          max.words = 150,
+          random.order = F,
+          min.freq = 5,
+          colors = brewer.pal(8, 'Dark2'),
+          scale = c(5, 0.3),
+          rot.per = 0.7)
+
+```
+
+
+
+#### Top 10 words used in #TwitterSold
+
+```{r }
+
+Bar = Cloud[1:10,]
+Bar$Var1 = as.character(Bar$Var1)
+Bar$Var1 = as.factor(Bar$Var1)
+
+plot_ly(Bar, y = ~Var1,x =~Freq, type = "bar", color =~ Var1 ,
+        
+        text  =~Freq, textposition = 'outside',
+        textfont = list(color = '#000000', size = 16)
+        )%>%
+  layout(title = "Top 10 words used in #TwitterSold", 
+         xaxis = list(title = "Word Count",range = c(0,(max(Bar$Freq)*1.2 ))),
+         yaxis = list(title = "", 
+                      categoryorder = "total ascending"))
+
+```
+
+
+## Analysing #TwitterCEO
+The #TwitterCEO has 7,361 tweets.
+
+```{r }
+TwitterCEO = read.csv(paste0("TwitterCEO",".csv"))
+```
+
+#### Preparing the data
+
+```{r }
+
+## extracting words
+TweetWords <- TwitterCEO %>% 
+  select(id, text) %>%
+  unnest_tokens(word,text)
+
+## geeting the actual words
+StopWords <- stop_words %>% 
+  select(-lexicon)
+
+## selecting actual words fromm the tweets data
+TweetWords <- TweetWords %>%
+  anti_join(StopWords)
+
+## getting sentiments data from each dictionary
+SentimentBing <- TweetWords %>%
+  left_join(bing_lex)
+
+SentimentLoughran <- TweetWords %>% 
+  left_join(loughran_lex)
+
+SentimentAfinn <- TweetWords %>% 
+  left_join(afinn_lex)
+
+## word cloud data for words used in each dictionary
+Cloud = na.omit(SentimentBing)
+Cloud1 = na.omit(SentimentAfinn)
+Cloud2 = na.omit(SentimentLoughran)
+
+## Afinn Dictionary word count
+SentimentAfinn = SentimentAfinn %>% 
+  filter(!is.na(value)) %>% 
+  group_by(value) %>% 
+  summarise(n=n())
+
+SentimentAfinn = as.data.frame(SentimentAfinn)
+
+## Bing Dictionary word count
+SentimentBing = SentimentBing %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarise(n=n())
+
+SentimentBing = as.data.frame(SentimentBing)
+
+SentimentBing$sentiment = as.factor(SentimentBing$sentiment)
+
+## Loughran Dictionary word count
+SentimentLoughran = SentimentLoughran %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarise(n=n())
+
+SentimentLoughran = as.data.frame(SentimentLoughran)
+
+SentimentLoughran$sentiment = as.factor(SentimentLoughran$sentiment)
+
+
+
+# Cloud = Cloud1
+
+Cloud = as.data.frame(table(Cloud$word))
+
+Cloud <- Cloud[order((Cloud$Freq), decreasing = TRUE),]
+
+
+# Cloud1 = as.data.frame(table(Cloud1$word))
+# 
+# Cloud1 <- Cloud1[order((Cloud1$Freq), decreasing = TRUE),]
+# 
+# 
+# Cloud2 = as.data.frame(table(Cloud2$word))
+# 
+# Cloud2 <- Cloud[order((Cloud2$Freq), decreasing = TRUE),]
+
+
+
+```
+
+
+#### Sentiment Results using Bing Dictionary
+
+```{r }
+plot_ly(SentimentBing, x = ~sentiment,y =~n, type = "bar", color =~ sentiment )%>%
+  layout(title = "Lexicon: Bing, Hashtag: #TwitterCEO", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments"))
+
+```
+
+
+#### Sentiment Results using Afinn Dictionary
+
+Scale on the x axis goes from -5 to 5 where -5 means extreme negative and 5 means extreme positive 
+
+```{r, warning=FALSE }
+
+plot_ly(SentimentAfinn, x = ~value,y =~n, type = "bar", color =~ value )%>%
+  layout(title = "Lexicon: Affin, Hashtag: #TwitterCEO", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments"))
+
+```
+
+#### Sentiment Results using Loughran Dictionary
+
+```{r }
+plot_ly(SentimentLoughran, x = ~sentiment,y =~n, type = "bar", color =~ sentiment )%>%
+  layout(title = "Lexicon: Loughran, Hashtag: #TwitterCEO", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments", 
+                      categoryorder = "total descending"))
+
+```
+
+#### Word Cloud
+
+```{r }
+
+wordcloud(words = (Cloud$Var1),
+          freq = Cloud$Freq,
+          max.words = 150,
+          random.order = F,
+          min.freq = 5,
+          colors = brewer.pal(8, 'Dark2'),
+          scale = c(5, 0.3),
+          rot.per = 0.7)
+
+```
+
+#### Top 10 words used in #TwitterCEO
+
+```{r }
+
+Bar = Cloud[1:10,]
+Bar$Var1 = as.character(Bar$Var1)
+Bar$Var1 = as.factor(Bar$Var1)
+
+plot_ly(Bar, y = ~Var1,x =~Freq, type = "bar", color =~ Var1 ,
+        
+        text  =~Freq, textposition = 'outside',
+        textfont = list(color = '#000000', size = 16)
+        )%>%
+  layout(title = "Top 10 words used in #TwitterCEO", 
+         xaxis = list(title = "Word Count",range = c(0,(max(Bar$Freq)*1.2 ))),
+         yaxis = list(title = "", 
+                      categoryorder = "total ascending"))
+
+```
+
+
+
+## Analysing #ElonMuskBuysTwitter
+This hashtag has 3,057 tweets. 
+
+```{r }
+ElonMuskBuysTwitter = read.csv(paste0("ElonMuskBuysTwitter",".csv"))
+```
+
+#### Preparing the data
+
+```{r }
+
+## extracting words
+TweetWords <- TwitterTakeover %>% 
+  select(id, text) %>%
+  unnest_tokens(word,text)
+
+## geeting the actual words
+StopWords <- stop_words %>% 
+  select(-lexicon)
+
+## selecting actual words fromm the tweets data
+TweetWords <- TweetWords %>%
+  anti_join(StopWords)
+
+## getting sentiments data from each dictionary
+SentimentBing <- TweetWords %>%
+  left_join(bing_lex)
+
+SentimentLoughran <- TweetWords %>% 
+  left_join(loughran_lex)
+
+SentimentAfinn <- TweetWords %>% 
+  left_join(afinn_lex)
+
+## word cloud data for words used in each dictionary
+Cloud = na.omit(SentimentBing)
+Cloud1 = na.omit(SentimentAfinn)
+Cloud2 = na.omit(SentimentLoughran)
+
+## Afinn Dictionary word count
+SentimentAfinn = SentimentAfinn %>% 
+  filter(!is.na(value)) %>% 
+  group_by(value) %>% 
+  summarise(n=n())
+
+SentimentAfinn = as.data.frame(SentimentAfinn)
+
+## Bing Dictionary word count
+SentimentBing = SentimentBing %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarise(n=n())
+
+SentimentBing = as.data.frame(SentimentBing)
+
+SentimentBing$sentiment = as.factor(SentimentBing$sentiment)
+
+## Loughran Dictionary word count
+SentimentLoughran = SentimentLoughran %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(sentiment) %>% 
+  summarise(n=n())
+
+SentimentLoughran = as.data.frame(SentimentLoughran)
+
+SentimentLoughran$sentiment = as.factor(SentimentLoughran$sentiment)
+
+
+
+# Cloud = Cloud1
+
+Cloud = as.data.frame(table(Cloud$word))
+
+Cloud <- Cloud[order((Cloud$Freq), decreasing = TRUE),]
+
+
+# Cloud1 = as.data.frame(table(Cloud1$word))
+# 
+# Cloud1 <- Cloud1[order((Cloud1$Freq), decreasing = TRUE),]
+# 
+# 
+# Cloud2 = as.data.frame(table(Cloud2$word))
+# 
+# Cloud2 <- Cloud[order((Cloud2$Freq), decreasing = TRUE),]
+
+
+
+```
+
+
+#### Sentiment Results using Bing Dictionary
+
+```{r }
+plot_ly(SentimentBing, x = ~sentiment,y =~n, type = "bar", color =~ sentiment )%>%
+  layout(title = "Lexicon: Bing, Hashtag: #ElonMuskBuysTwitter", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments"))
+
+```
+
+
+#### Sentiment Results using Afinn Dictionary
+
+Scale on the x axis goes from -5 to 5 where -5 means extreme negative and 5 means extreme positive 
+
+```{r, warning=FALSE }
+
+plot_ly(SentimentAfinn, x = ~value,y =~n, type = "bar", color =~ value )%>%
+  layout(title = "Lexicon: Affin, Hashtag: #ElonMuskBuysTwitter", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments"))
+
+```
+
+#### Sentiment Results using Loughran Dictionary
+
+```{r }
+plot_ly(SentimentLoughran, x = ~sentiment,y =~n, type = "bar", color =~ sentiment )%>%
+  layout(title = "Lexicon: Loughran, Hashtag: #ElonMuskBuysTwitter", 
+         yaxis = list(title = "Word Count"), 
+         xaxis = list(title = "Sentiments", 
+                      categoryorder = "total descending"))
+
+```
+
+#### Word Cloud
+
+```{r }
+
+wordcloud(words = (Cloud$Var1),
+          freq = Cloud$Freq,
+          max.words = 150,
+          random.order = F,
+          min.freq = 5,
+          colors = brewer.pal(8, 'Dark2'),
+          scale = c(5, 0.3),
+          rot.per = 0.7)
+
+```
+
+
+#### Top 10 words used in #ElonMuskBuysTwitter
+
+```{r }
+
+Bar = Cloud[1:10,]
+Bar$Var1 = as.character(Bar$Var1)
+Bar$Var1 = as.factor(Bar$Var1)
+
+plot_ly(Bar, y = ~Var1,x =~Freq, type = "bar", color =~ Var1 ,
+        
+        text  =~Freq, textposition = 'outside',
+        textfont = list(color = '#000000', size = 16)
+        )%>%
+  layout(title = "Top 10 words used in #ElonMuskBuysTwitter", 
+         xaxis = list(title = "Word Count",range = c(0,(max(Bar$Freq)*1.2 ))), 
+         yaxis = list(title = "", 
+                      categoryorder = "total ascending"))
+
+```
+
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
+
+```
